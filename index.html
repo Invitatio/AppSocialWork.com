@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="greeting"></div>
+    
+    <a href="index INICIO.html" class="button-link">
+        <button class="start-button">Comenzamos</button>
+    </a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const greetingDiv = document.getElementById('greeting');
+            let userName = localStorage.getItem('userName'); // Intenta obtener el nombre del almacenamiento local
+
+            if (!userName) {
+                // Si no hay nombre, lo pide al usuario
+                userName = prompt('¡Hola! ¿Cuál es tu nombre?');
+                if (userName) {
+                    localStorage.setItem('userName', userName); // Guarda el nombre en el almacenamiento local
+                } else {
+                    userName = 'Invitado'; // Nombre por defecto si el usuario no introduce nada
+                }
+            }
+            greetingDiv.textContent = `Bienvenido, ${userName}`;
+        });
+    </script>
+
+</body>
+</html>

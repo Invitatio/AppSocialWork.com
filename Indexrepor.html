@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pase de Salida</title>
+    <link rel="stylesheet" href="Stylerepor.css">
+</head>
+<body>
+    <div class="pase-salida">
+        <div class="header">
+        </div>
+        <div class="form-container">
+            <div class="form-row">
+                <label for="nombreTutor">Nombre del Tutor:</label>
+                <input type="text" id="nombreTutor" name="nombreTutor">
+            </div>
+            <div class="form-row">
+                <label for="nombreAlumno">Nombre del Alumno:</label>
+                <input type="text" id="nombreAlumno" name="nombreAlumno">
+            </div>
+            <div class="form-row">
+                <label for="semestre">Semestre:</label>
+                <input type="text" id="semestre" name="semestre" min="1" class="semestre-input">
+                <label for="grupo">Grupo:</label>
+                <input type="text" id="grupo" name="grupo" maxlength="1" class="short-input">
+                <label for="especialidad">Especialidad:</label>
+                <input type="text" id="especialidad" name="especialidad" class="long-input">
+            </div>
+            <div class="form-row">
+                <label for="motivoReporte">Motivo de Reporte:</label>
+                <textarea id="motivoReporte" name="motivoReporte" rows="5" placeholder="Escriba el motivo aquí." style="width: 100%; box-sizing: border-box;"></textarea>
+            </div>
+            <button id="generar-archivo" class="generar-archivo-btn">Generar Archivo</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('generar-archivo').addEventListener('click', generarPDF);
+
+        function generarPDF() {
+            const nombreTutor = document.getElementById('nombreTutor').value;
+            const nombreAlumno = document.getElementById('nombreAlumno').value;
+            const semestre = document.getElementById('semestre').value;
+            const grupo = document.getElementById('grupo').value;
+            const especialidad = document.getElementById('especialidad').value;
+            const motivoReporte = document.getElementById('motivoReporte').value;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const img = new Image();
+            img.onload = function() {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+
+                doc.setFontSize(12);
+
+                // Coordenadas para cada dato (x, y)
+                const nombreTutorCoords = { x: 50, y: 98.5 };
+                const nombreAlumnoCoords = { x: 95, y: 114.5 };
+                const semestreCoords = { x: 35, y: 122.5 };
+                const grupoCoords = { x: 80, y: 122.5 };
+                const especialidadCoords = { x: 130, y: 122.5 };
+
+                const diaCoords = { x: 112, y: 76 }; // Coordenadas para el día
+                const mesCoords = { x: 140, y: 76 }; // Coordenadas para el mes
+
+                doc.text(`${nombreTutor}`, nombreTutorCoords.x, nombreTutorCoords.y);
+                doc.text(`${nombreAlumno}`, nombreAlumnoCoords.x, nombreAlumnoCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Rojo
+                doc.text(`${semestre}`, semestreCoords.x, semestreCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Azul
+                doc.text(`${grupo}`, grupoCoords.x, grupoCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Verde
+                doc.text(`${especialidad}`, especialidadCoords.x, especialidadCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Negro (restablecer color)
+
+                // Coordenadas y ancho del cuadro de motivo
+                const motivoReporteCoords = { x: 25, y: 147.5, width: 156 };
+                const lineHeight = 5; // Espaciado entre líneas
+
+                // Divide el motivo del reporte en líneas para que quepa en el ancho definido
+                const lines = doc.splitTextToSize(motivoReporte, motivoReporteCoords.width);
+
+                // Escribe cada línea del motivo en el PDF con coordenadas específicas
+                lines.forEach((line, index) => {
+                    const y = motivoReporteCoords.y + (index * lineHeight); // Calcula la coordenada Y para cada línea
+                    doc.text(motivoReporteCoords.x, y, line);
+                });
+
+                // Obtener la fecha actual
+                const fechaActual = new Date();
+                const dia = fechaActual.getDate();
+                const mes = fechaActual.toLocaleString('es-ES', { month: 'long' });
+
+                // Imprimir día y mes individualmente
+                doc.text(`${dia}`, diaCoords.x, diaCoords.y);
+                doc.text(`${mes}`, mesCoords.x, mesCoords.y);
+
+                doc.save('reporte.pdf');
+            };
+            img.onerror = function() {
+                console.error("Error al cargar el PDF.");
+                doc.setFontSize(12);
+
+                const nombreTutorCoords = { x: 20, y: 30 };
+                const nombreAlumnoCoords = { x: 20, y: 40 };
+                const semestreCoords = { x: 20, y: 50 };
+                const grupoCoords = { x: 50, y: 50 };
+                const especialidadCoords = { x: 80, y: 50 };
+                const motivoReporteCoords = { x: 20, y: 60 };
+                const diaCoords = { x: 55, y: 80 };
+                const mesCoords = { x: 55, y: 40 };
+
+                doc.text(`${nombreTutor}`, nombreTutorCoords.x, nombreTutorCoords.y);
+                doc.text(`${nombreAlumno}`, nombreAlumnoCoords.x, nombreAlumnoCoords.y);
+                doc.text(`${semestre}`, semestreCoords.x, semestreCoords.y);
+                doc.text(`${grupo}`, grupoCoords.x, grupoCoords.y);
+                doc.text(`${especialidad}`, especialidadCoords.x, especialidadCoords.y);
+
+                const lines = doc.splitTextToSize(motivoReporte, 180);
+                doc.text(motivoReporteCoords.x, motivoReporteCoords.y, lines);
+
+                const fechaActual = new Date();
+                const dia = fechaActual.getDate();
+                const mes = fechaActual.toLocaleString('es-ES', { month: 'long' });
+
+                doc.text(`${dia}`, diaCoords.x, diaCoords.y);
+                doc.text(`${mes}`, mesCoords.x, mesCoords.y);
+
+                doc.save('reporte.pdf');
+            };
+            img.src = 'imagen.png';
+        }
+    </script>
+</body>
+</html>

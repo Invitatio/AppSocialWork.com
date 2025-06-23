@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Entrevista</title>
+    <link rel="stylesheet" href="Styleentre.css">
+</head>
+<body>
+    <div class="pase-salida">
+        <div class="header">
+        </div>
+        <div class="form-container">
+            <div class="form-row">
+                <label for="nombre">Nombre Alumno(A):</label>
+                <input type="text" id="nombre" name="nombre">
+            </div>
+            <div class="form-row">
+                <label for="edad">Edad:</label>
+                <input type="number" id="edad" name="edad" class="short-input">
+                <label for="domicilio">Domicilio:</label>
+                <input type="text" id="domicilio" name="domicilio" class="long-input">
+            </div>
+            <div class="form-row">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono">
+                <label for="especialidad">Especialidad:</label>
+                <input type="text" id="especialidad" name="especialidad" class="long-input">
+            </div>
+            <div class="form-row">
+                <label for="grado">Grado:</label>
+                <input type="text" id="grado" name="grado" class="short-input">
+                <label for="grupo">Grupo:</label>
+                <input type="text" id="grupo" name="grupo" class="short-input">
+            </div>
+            <div class="form-row">
+                <label for="motivo">Motivo de la entrevista:</label>
+                <textarea id="motivo" name="motivo" rows="4" class="long-textarea"></textarea>
+            </div>
+            <div class="form-row">
+                <label for="acuerdos">Acuerdos y compromisos:</label>
+                <textarea id="acuerdos" name="acuerdos" rows="4" class="long-textarea"></textarea>
+            </div>
+            <div class="form-row">
+                <label for="observaciones">Observaciones:</label>
+                <textarea id="observaciones" name="observaciones" rows="4" class="long-textarea"></textarea>
+            </div>
+            <div class="form-row">
+                <label for="fecha">Fecha:</label>
+                <input type="text" id="fecha" name="fecha" readonly>
+            </div>
+            <button id="generar-archivo" class="generar-archivo-btn">Generar Archivo</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.getElementById('fecha');
+            const fechaActual = new Date();
+            const dia = fechaActual.getDate();
+            const mes = fechaActual.toLocaleString('es-ES', { month: 'long' });
+            const anio = fechaActual.getFullYear();
+            fechaInput.value = `${dia} de ${mes} de ${anio}`;
+        });
+
+        document.getElementById('generar-archivo').addEventListener('click', generarPDF);
+
+        function generarPDF() {
+            const nombre = document.getElementById('nombre').value;
+            const edad = document.getElementById('edad').value;
+            const domicilio = document.getElementById('domicilio').value;
+            const telefono = document.getElementById('telefono').value;
+            const especialidad = document.getElementById('especialidad').value;
+            const grado = document.getElementById('grado').value;
+            const grupo = document.getElementById('grupo').value;
+            const motivo = document.getElementById('motivo').value;
+            const acuerdos = document.getElementById('acuerdos').value;
+            const observaciones = document.getElementById('observaciones').value;
+            const fecha = document.getElementById('fecha').value;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const img = new Image();
+            img.onload = function() {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+
+                doc.setFontSize(10); // Reducir el tamaño de la fuente
+
+                // Coordenadas ajustadas
+                const nombreCoords = { x: 75, y: 71.5 };
+                const edadCoords = { x: 170, y: 71.5 };
+                const domicilioCoords = { x: 50, y: 77.5 };
+                const telefonoCoords = { x: 143, y: 77.5 };
+                const especialidadCoords = { x: 55, y: 83 };
+                const gradoCoords = { x: 139, y: 83 };
+                const grupoCoords = { x: 167, y: 83 };
+                const fechaCoords = { x: 139, y: 61 };
+
+                // Coordenadas y anchos de los cuadros
+                const motivoCoords = { x: 26, y: 100, width: 157 };
+                const acuerdosCoords = { x: 26, y: 148, width: 157 };
+                const observacionesCoords = { x: 26, y: 198, width: 157 };
+
+                // Dividir el texto en líneas que quepan en los cuadros
+                const motivoLineas = doc.splitTextToSize(motivo, motivoCoords.width);
+                const acuerdosLineas = doc.splitTextToSize(acuerdos, acuerdosCoords.width);
+                const observacionesLineas = doc.splitTextToSize(observaciones, observacionesCoords.width);
+
+                // Imprimir el texto línea por línea dentro de los cuadros
+                let yOffset = motivoCoords.y;
+                motivoLineas.forEach(linea => {
+                    doc.text(linea, motivoCoords.x, yOffset);
+                    yOffset += 5; // Ajustar el espaciado entre líneas
+                });
+
+                yOffset = acuerdosCoords.y;
+                acuerdosLineas.forEach(linea => {
+                    doc.text(linea, acuerdosCoords.x, yOffset);
+                    yOffset += 5;
+                });
+
+                yOffset = observacionesCoords.y;
+                observacionesLineas.forEach(linea => {
+                    doc.text(linea, observacionesCoords.x, yOffset);
+                    yOffset += 5;
+                });
+
+                // Imprimir el resto del texto
+                doc.text(`${nombre}`, nombreCoords.x, nombreCoords.y);
+                doc.text(`${edad}`, edadCoords.x, edadCoords.y);
+                doc.text(`${domicilio}`, domicilioCoords.x, domicilioCoords.y);
+                doc.text(`${telefono}`, telefonoCoords.x, telefonoCoords.y);
+                doc.text(`${especialidad}`, especialidadCoords.x, especialidadCoords.y);
+                doc.text(`${grado}`, gradoCoords.x, gradoCoords.y);
+                doc.text(`${grupo}`, grupoCoords.x, grupoCoords.y);
+                doc.text(`${fecha}`, fechaCoords.x, fechaCoords.y);
+
+                doc.save('reporte_entrevista.pdf');
+            };
+            img.onerror = function() {
+                console.error("Error al cargar la imagen.");
+                doc.text("Error al cargar la imagen.", 20, 20);
+                doc.save('reporte_entrevista.pdf');
+            };
+            img.src = 'imagen.png';
+        }
+    </script>
+</body>
+</html>

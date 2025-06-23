@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pase de Salida</title>
+    <link rel="stylesheet" href="Stylessalida.css">
+</head>
+<body>
+    <div class="pase-salida">
+        <div class="header">
+        </div>
+        <div class="form-container">
+            <div class="form-row">
+                <label for="nombre">Nombre del Alumno:</label>
+                <input type="text" id="nombre" name="nombre">
+            </div>
+            <div class="form-row">
+                <label for="semestre">Semestre:</label>
+                <input type="text" id="semestre" name="semestre" min="1" class="semestre-input">
+                <label for="grupo">Grupo:</label>
+                <input type="text" id="grupo" name="grupo" maxlength="1" class="short-input">
+                <label for="especialidad">Especialidad:</label>
+                <input type="text" id="especialidad" name="especialidad" class="long-input">
+            </div>
+            <div class="iput"> Asunto:</div>
+            <div class="form-row">
+                <label>Familiar:<input type="checkbox" name="asunto-familiar"></label>
+                <label>Salud:<input type="checkbox" name="asunto-salud"></label>
+                <label>Personal:<input type="checkbox" name="asunto-personal"></label>
+                <label for="hora-salida">Hora de salida:</label>
+                <input type="time" id="hora-salida" name="hora-salida" class="short-input">
+            </div>
+            <button id="generar-archivo" class="generar-archivo-btn">Generar Archivo</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('generar-archivo').addEventListener('click', generarPDF);
+
+        function generarPDF() {
+            const nombre = document.getElementById('nombre').value;
+            const semestre = document.getElementById('semestre').value;
+            const grupo = document.getElementById('grupo').value;
+            const especialidad = document.getElementById('especialidad').value;
+            const familiar = document.querySelector('input[name="asunto-familiar"]').checked;
+            const salud = document.querySelector('input[name="asunto-salud"]').checked;
+            const personal = document.querySelector('input[name="asunto-personal"]').checked;
+            const horaSalida = document.getElementById('hora-salida').value;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const img = new Image();
+            img.onload = function() {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                doc.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+
+                doc.setFontSize(12);
+
+                // Coordenadas para cada dato (x, y)
+                const nombreCoords = { x: 67, y: 98 };
+                const semestreCoords = { x: 49, y: 106 };
+                const grupoCoords = { x: 78, y: 106 };
+                const especialidadCoords = { x: 120, y: 106 };
+                const familiarCoords = { x: 46, y: 138 };
+                const saludCoords = { x: 78, y: 138 };
+                const personalCoords = { x: 118, y: 138 };
+                const horaSalidaCoords = { x: 162, y: 138 };
+                const diaCoords = { x: 112, y: 76 }; // Coordenadas para el día
+                const mesCoords = { x: 140, y: 76 }; // Coordenadas para el mes
+
+                doc.text(`${nombre}`, nombreCoords.x, nombreCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Rojo
+                doc.text(`${semestre}`, semestreCoords.x, semestreCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Azul
+                doc.text(`${grupo}`, grupoCoords.x, grupoCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Verde
+                doc.text(`${especialidad}`, especialidadCoords.x, especialidadCoords.y);
+
+                doc.setTextColor(0, 0, 0); // Negro (restablecer color)
+
+                if (familiar) doc.text('X', familiarCoords.x, familiarCoords.y);
+                if (salud) doc.text('X', saludCoords.x, saludCoords.y);
+                if (personal) doc.text('X', personalCoords.x, personalCoords.y);
+
+                doc.text(`${horaSalida}`, horaSalidaCoords.x, horaSalidaCoords.y);
+
+                // Obtener la fecha actual
+                const fechaActual = new Date();
+                const dia = fechaActual.getDate();
+                const mes = fechaActual.toLocaleString('es-ES', { month: 'long' });
+
+                // Imprimir día y mes individualmente
+                doc.text(`${dia}`, diaCoords.x, diaCoords.y);
+                doc.text(`${mes}`, mesCoords.x, mesCoords.y);
+
+                doc.save('pase_salida.pdf');
+            };
+            img.onerror = function() {
+                console.error("Error al cargar el PDF.");
+                doc.setFontSize(12);
+
+                const nombreCoords = { x: 20, y: 40 };
+                const semestreCoords = { x: 20, y: 50 };
+                const grupoCoords = { x: 50, y: 50 };
+                const especialidadCoords = { x: 80, y: 50 };
+                const familiarCoords = { x: 20, y: 60 };
+                const saludCoords = { x: 40, y: 60 };
+                const personalCoords = { x: 60, y: 60 };
+                const horaSalidaCoords = { x: 20, y: 70 };
+                const diaCoords = { x: 55, y: 80 };
+                const mesCoords = { x: 55, y: 40 };
+
+                doc.text(`${nombre}`, nombreCoords.x, nombreCoords.y);
+                doc.text(`${semestre}`, semestreCoords.x, semestreCoords.y);
+                doc.text(`${grupo}`, grupoCoords.x, grupoCoords.y);
+                doc.text(`${especialidad}`, especialidadCoords.x, especialidadCoords.y);
+
+                if (familiar) doc.text('V', familiarCoords.x, familiarCoords.y);
+                if (salud) doc.text('V', saludCoords.x, saludCoords.y);
+                if (personal) doc.text('V', personalCoords.x, personalCoords.y);
+
+                doc.text(`${horaSalida}`, horaSalidaCoords.x, horaSalidaCoords.y);
+
+                const fechaActual = new Date();
+                const dia = fechaActual.getDate();
+                const mes = fechaActual.toLocaleString('es-ES', { month: 'long' });
+
+                doc.text(`${dia}`, diaCoords.x, diaCoords.y);
+                doc.text(`${mes}`, mesCoords.x, mesCoords.y);
+
+                doc.save('pase_salida.pdf');
+            };
+            img.src = 'imagen.png';
+        }
+    </script>
+</body>
+</html>

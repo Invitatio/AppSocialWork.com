@@ -1,0 +1,67 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #f8f8f8;
+    background-image: url('imagen.png'); /* Reemplaza con la ruta de tu imagen */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+#greeting {
+    font-size: 3.5em;
+    font-weight: bold;
+    margin-bottom: 40px;
+    text-align: center;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    line-height: 1.2;
+}
+
+/* From Uiverse.io by WhiteNervosa */
+/* Asegúrate de que tu botón HTML tenga la etiqueta <button> o usa .start-button en su lugar */
+.start-button { /* Usamos .start-button ya que es la clase que asignamos en el HTML */
+    font-size: 18px;
+    color: #e1e1e1;
+    font-family: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    background: none;
+    text-transform: uppercase;
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition-duration: 400ms;
+    transition-property: color;
+}
+
+.start-button:focus,
+.start-button:hover {
+    color: #fff;
+}
+
+.start-button:focus:after,
+.start-button:hover:after {
+    width: 100%;
+    left: 0%;
+}
+
+.start-button:after {
+    content: "";
+    pointer-events: none;
+    bottom: -2px;
+    left: 50%;
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background-color: #fff;
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition-duration: 400ms;
+    transition-property: width, left;
+}

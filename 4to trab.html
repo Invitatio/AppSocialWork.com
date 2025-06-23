@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos Cuarto</title>
+    <link rel="stylesheet" href="s4to inf.css">
+    <style>
+        /* Aquí puedes agregar estilos CSS adicionales si es necesario */
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cuarto Semestre Trabajo Social</h1>
+    </header>
+
+    <main>
+        <div class="left-panel">
+            <h2>Registrar nuevo Alumno</h2>
+            <input type="number" id="numLista" placeholder="Número de lista">
+            <input type="text" id="nombre" placeholder="Nombre">
+            <input type="number" id="edad" placeholder="Edad">
+            <input type="text" id="grado" placeholder="Grado">
+            <input type="number" id="faltas" placeholder="Faltas">
+            <button onclick="registrarAlumno()">Registrar Alumno</button>
+        </div>
+
+        <div class="right-panel">
+            <div class="search-bar">
+                <h1>Búsqueda</h1>
+                <input type="text" id="busqueda" placeholder="Buscar por nombre o Núm. Lista" oninput="buscarAlumno()">
+            </div>
+
+            <h2>Lista de alumnos</h2>
+            <table id="tablaAlumnos">
+                <thead>
+                    <tr>
+                        <th>Num. de Lista</th>
+                        <th>Nombre</th>
+                        <th>Edad</th>
+                        <th>Grado</th>
+                        <th>Información</th>
+                        <th>Faltas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        let alumnos = JSON.parse(localStorage.getItem('alumnos')) || [];
+        let alumnoAEditar = null;
+
+        function guardarAlumnos() {
+            localStorage.setItem('alumnos', JSON.stringify(alumnos));
+        }
+
+        function registrarAlumno() {
+            const numLista = document.getElementById("numLista").value;
+            const nombre = document.getElementById("nombre").value;
+            const edad = document.getElementById("edad").value;
+            const grado = document.getElementById("grado").value;
+            const faltas = document.getElementById("faltas").value;
+
+            if (!numLista || !nombre || !edad || !grado || !faltas) {
+                alert("Por favor, rellene todos los campos para poder registrar.");
+                return;
+            }
+
+            const alumno = {
+                numLista: numLista,
+                nombre: nombre,
+                edad: edad,
+                grado: grado,
+                contactos: "Información", // Agregamos "Información" automáticamente
+                faltas: faltas
+            };
+
+            if (alumnoAEditar) {
+                const index = alumnos.findIndex(a => a.numLista === alumnoAEditar.numLista);
+                alumnos[index] = alumno;
+                alumnoAEditar = null;
+            } else {
+                alumnos.push(alumno);
+            }
+
+            guardarAlumnos();
+            actualizarTabla();
+            limpiarFormulario();
+        }
+
+        function actualizarTabla(alumnosFiltrados = alumnos) {
+            alumnosFiltrados.sort((a, b) => parseInt(a.numLista) - parseInt(b.numLista)); // Ordena por número de lista
+            const tabla = document.getElementById("tablaAlumnos").getElementsByTagName('tbody')[0];
+            tabla.innerHTML = "";
+
+            alumnosFiltrados.forEach(alumno => {
+                const nuevaFila = tabla.insertRow();
+                const celdas = [
+                    nuevaFila.insertCell(0),
+                    nuevaFila.insertCell(1),
+                    nuevaFila.insertCell(2),
+                    nuevaFila.insertCell(3),
+                    nuevaFila.insertCell(4),
+                    nuevaFila.insertCell(5),
+                    nuevaFila.insertCell(6)
+                ];
+
+                celdas[0].textContent = alumno.numLista;
+                celdas[1].textContent = alumno.nombre;
+                celdas[2].textContent = alumno.edad;
+                celdas[3].textContent = alumno.grado;
+                celdas[4].innerHTML = `<button class="boton-informacion">Información</button>`;
+                celdas[5].textContent = alumno.faltas;
+                celdas[6].innerHTML = `<button onclick="editarAlumno(this, '${alumno.numLista}')">Editar</button> <button onclick="eliminarAlumno(this)">Eliminar</button>`;
+            });
+        }
+
+        function limpiarFormulario() {
+            document.getElementById("numLista").value = "";
+            document.getElementById("nombre").value = "";
+            document.getElementById("edad").value = "";
+            document.getElementById("grado").value = "";
+            document.getElementById("faltas").value = "";
+        }
+
+        function buscarAlumno() {
+            const busqueda = document.getElementById("busqueda").value.toLowerCase();
+            const resultados = alumnos.filter(alumno => 
+                alumno.nombre.toLowerCase().includes(busqueda) || alumno.numLista.includes(busqueda)
+            );
+            actualizarTabla(resultados);
+        }
+
+        function editarAlumno(boton, numLista) {
+            alumnoAEditar = alumnos.find(a => a.numLista === numLista);
+            document.getElementById("numLista").value = alumnoAEditar.numLista;
+            document.getElementById("nombre").value = alumnoAEditar.nombre;
+            document.getElementById("edad").value = alumnoAEditar.edad;
+            document.getElementById("grado").value = alumnoAEditar.grado;
+            document.getElementById("faltas").value = alumnoAEditar.faltas;
+        }
+
+        function eliminarAlumno(boton) {
+            const fila = boton.parentNode.parentNode;
+            const numLista = fila.cells[0].textContent;
+            alumnos = alumnos.filter(alumno => alumno.numLista !== numLista);
+            guardarAlumnos();
+            fila.parentNode.removeChild(fila);
+        }
+
+        actualizarTabla(); // Actualiza la tabla al cargar la página
+    </script>
+</body>
+</html>
